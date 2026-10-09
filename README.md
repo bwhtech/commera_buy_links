@@ -39,7 +39,7 @@ https://store.example.com/buy/spring-sale?checkout[email]=asha@example.com&utm_c
 
 ![Create a buy link](docs/screenshots/create-link.png)
 
-A link has three tabs: **Details** (setup), **Analytics** and **Orders**. The side panel shows the share box and the last 30 days on every tab.
+A link has three tabs: **Details** (setup), **Analytics** and **Orders**. The side panel stays on every tab: the share box with its QR code, and the last 30 days with a funnel from click to checkout to order.
 
 ![Link details](docs/screenshots/link-details.png)
 
