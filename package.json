@@ -1,0 +1,14 @@
+{
+	"name": "commera_buy_links",
+	"private": true,
+	"type": "module",
+	"scripts": {
+		"build": "vite build --config commera/vite.config.js"
+	},
+	"devDependencies": {
+		"@commera/plugin-kit": "link:../commera/packages/plugin-kit",
+		"@vitejs/plugin-vue": "^5.2.1",
+		"vite": "^5.4.11",
+		"vue": "^3.5.15"
+	}
+}
