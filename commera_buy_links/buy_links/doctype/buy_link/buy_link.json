@@ -1,0 +1,268 @@
+{
+ "creation": "2026-10-09 15:00:00.000000",
+ "doctype": "DocType",
+ "engine": "InnoDB",
+ "field_order": [
+  "title",
+  "status",
+  "column_break_link",
+  "slug",
+  "cart_section",
+  "items",
+  "discount_section",
+  "coupon_code",
+  "customer_section",
+  "email",
+  "first_name",
+  "last_name",
+  "column_break_customer",
+  "address1",
+  "address2",
+  "city",
+  "province",
+  "zip",
+  "country",
+  "attribution_section",
+  "utm_source",
+  "utm_medium",
+  "utm_campaign",
+  "column_break_attribution",
+  "utm_term",
+  "utm_content",
+  "order_tags",
+  "limits_section",
+  "usage_limit",
+  "once_per_customer",
+  "column_break_limits",
+  "starts_on",
+  "ends_on"
+ ],
+ "fields": [
+  {
+   "description": "Only staff see this name.",
+   "fieldname": "title",
+   "fieldtype": "Data",
+   "in_list_view": 1,
+   "label": "Name",
+   "reqd": 1
+  },
+  {
+   "default": "Draft",
+   "fieldname": "status",
+   "fieldtype": "Select",
+   "in_list_view": 1,
+   "in_standard_filter": 1,
+   "label": "Status",
+   "options": "Active\nDraft"
+  },
+  {
+   "fieldname": "column_break_link",
+   "fieldtype": "Column Break"
+  },
+  {
+   "description": "Optional. Opens the link at /buy/<slug> as well as /buy/<code>.",
+   "fieldname": "slug",
+   "fieldtype": "Data",
+   "label": "Custom slug",
+   "unique": 1
+  },
+  {
+   "fieldname": "cart_section",
+   "fieldtype": "Section Break",
+   "label": "Cart"
+  },
+  {
+   "fieldname": "items",
+   "fieldtype": "Table",
+   "label": "Items",
+   "options": "Buy Link Item",
+   "reqd": 1
+  },
+  {
+   "fieldname": "discount_section",
+   "fieldtype": "Section Break",
+   "label": "Discount"
+  },
+  {
+   "description": "Applied at checkout. Limits below apply only while this code is on the cart.",
+   "fieldname": "coupon_code",
+   "fieldtype": "Link",
+   "label": "Coupon code",
+   "options": "Coupon Code"
+  },
+  {
+   "collapsible": 1,
+   "description": "Fills empty checkout fields. A visitor can override them with checkout[...] URL parameters.",
+   "fieldname": "customer_section",
+   "fieldtype": "Section Break",
+   "label": "Customer prefill"
+  },
+  {
+   "fieldname": "email",
+   "fieldtype": "Data",
+   "label": "Email",
+   "options": "Email"
+  },
+  {
+   "fieldname": "first_name",
+   "fieldtype": "Data",
+   "label": "First name"
+  },
+  {
+   "fieldname": "last_name",
+   "fieldtype": "Data",
+   "label": "Last name"
+  },
+  {
+   "fieldname": "column_break_customer",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "address1",
+   "fieldtype": "Data",
+   "label": "Address line 1"
+  },
+  {
+   "fieldname": "address2",
+   "fieldtype": "Data",
+   "label": "Address line 2"
+  },
+  {
+   "fieldname": "city",
+   "fieldtype": "Data",
+   "label": "City"
+  },
+  {
+   "fieldname": "province",
+   "fieldtype": "Data",
+   "label": "State"
+  },
+  {
+   "fieldname": "zip",
+   "fieldtype": "Data",
+   "label": "Postal code"
+  },
+  {
+   "fieldname": "country",
+   "fieldtype": "Link",
+   "label": "Country",
+   "options": "Country"
+  },
+  {
+   "collapsible": 1,
+   "fieldname": "attribution_section",
+   "fieldtype": "Section Break",
+   "label": "Attribution"
+  },
+  {
+   "fieldname": "utm_source",
+   "fieldtype": "Data",
+   "label": "UTM source"
+  },
+  {
+   "fieldname": "utm_medium",
+   "fieldtype": "Data",
+   "label": "UTM medium"
+  },
+  {
+   "fieldname": "utm_campaign",
+   "fieldtype": "Data",
+   "label": "UTM campaign"
+  },
+  {
+   "fieldname": "column_break_attribution",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "utm_term",
+   "fieldtype": "Data",
+   "label": "UTM term"
+  },
+  {
+   "fieldname": "utm_content",
+   "fieldtype": "Data",
+   "label": "UTM content"
+  },
+  {
+   "description": "Comma-separated. Added to every order placed through this link.",
+   "fieldname": "order_tags",
+   "fieldtype": "Small Text",
+   "label": "Order tags"
+  },
+  {
+   "collapsible": 1,
+   "fieldname": "limits_section",
+   "fieldtype": "Section Break",
+   "label": "Limits and schedule"
+  },
+  {
+   "description": "Orders allowed through this link. 0 is no limit. At the limit the link moves to Draft.",
+   "fieldname": "usage_limit",
+   "fieldtype": "Int",
+   "label": "Usage limit"
+  },
+  {
+   "fieldname": "once_per_customer",
+   "fieldtype": "Check",
+   "label": "Once per customer"
+  },
+  {
+   "fieldname": "column_break_limits",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "starts_on",
+   "fieldtype": "Datetime",
+   "label": "Starts on"
+  },
+  {
+   "fieldname": "ends_on",
+   "fieldtype": "Datetime",
+   "label": "Ends on"
+  }
+ ],
+ "modified": "2026-10-09 15:00:00.000000",
+ "modified_by": "Administrator",
+ "module": "Buy Links",
+ "name": "Buy Link",
+ "naming_rule": "By script",
+ "owner": "Administrator",
+ "permissions": [
+  {
+   "create": 1,
+   "delete": 1,
+   "email": 1,
+   "export": 1,
+   "print": 1,
+   "read": 1,
+   "report": 1,
+   "role": "System Manager",
+   "share": 1,
+   "write": 1
+  },
+  {
+   "create": 1,
+   "delete": 1,
+   "email": 1,
+   "export": 1,
+   "print": 1,
+   "read": 1,
+   "report": 1,
+   "role": "Sales Manager",
+   "share": 1,
+   "write": 1
+  },
+  {
+   "read": 1,
+   "report": 1,
+   "role": "Sales User"
+  }
+ ],
+ "search_fields": "title,slug",
+ "show_title_field_in_link": 1,
+ "sort_field": "creation",
+ "sort_order": "DESC",
+ "states": [],
+ "title_field": "title",
+ "track_changes": 1
+}

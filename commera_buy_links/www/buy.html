@@ -1,0 +1,10 @@
+{% extends "templates/layout.html" %}
+
+{% block body %}
+<div class="max-w-xl mx-auto py-16 space-y-6 text-center">
+	<h1 class="text-2xl font-semibold">{{ message }}</h1>
+	<a href="/" class="inline-flex h-12 px-8 items-center rounded-lg bg-accent hover:bg-secondary-accent text-white text-base font-semibold uppercase">
+		{{ _("Continue shopping") }}
+	</a>
+</div>
+{% endblock %}

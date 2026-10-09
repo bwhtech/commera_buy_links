@@ -1,0 +1,66 @@
+{
+ "creation": "2026-10-09 18:00:00.000000",
+ "description": "Clicks per link per day. Written by /buy/<code>; the row name is <link>-<date>.",
+ "doctype": "DocType",
+ "engine": "InnoDB",
+ "field_order": [
+  "link",
+  "date",
+  "clicks"
+ ],
+ "fields": [
+  {
+   "fieldname": "link",
+   "fieldtype": "Link",
+   "in_list_view": 1,
+   "label": "Buy Link",
+   "options": "Buy Link",
+   "reqd": 1,
+   "search_index": 1
+  },
+  {
+   "fieldname": "date",
+   "fieldtype": "Date",
+   "in_list_view": 1,
+   "label": "Date",
+   "reqd": 1,
+   "search_index": 1
+  },
+  {
+   "default": "0",
+   "fieldname": "clicks",
+   "fieldtype": "Int",
+   "in_list_view": 1,
+   "label": "Clicks"
+  }
+ ],
+ "in_create": 1,
+ "modified": "2026-10-09 18:00:00.000000",
+ "modified_by": "Administrator",
+ "module": "Buy Links",
+ "name": "Buy Link Daily Stat",
+ "naming_rule": "By script",
+ "owner": "Administrator",
+ "permissions": [
+  {
+   "read": 1,
+   "report": 1,
+   "role": "System Manager"
+  },
+  {
+   "read": 1,
+   "report": 1,
+   "role": "Sales Manager"
+  },
+  {
+   "read": 1,
+   "report": 1,
+   "role": "Sales User"
+  }
+ ],
+ "read_only": 1,
+ "sort_field": "date",
+ "sort_order": "DESC",
+ "states": [],
+ "track_changes": 0
+}

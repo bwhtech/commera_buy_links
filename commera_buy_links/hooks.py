@@ -12,7 +12,19 @@ use_json_request_body = True
 # Apps
 # ------------------
 
-# required_apps = []
+required_apps = ["commera"]
+commera_api_version = [1]
+commera_plugin_title = "Buy Links"
+
+after_install = "commera_buy_links.install.add_custom_fields"
+after_migrate = "commera_buy_links.install.add_custom_fields"
+
+website_route_rules = [{"from_route": "/buy/<code>", "to_route": "buy"}]
+
+doc_events = {"Quotation": {"validate": "commera_buy_links.attribution.attribute_cart"}}
+
+commera_hooks = {"validate_cart": ["commera_buy_links.cart.get_cart_refusal"]}
+commera_events = {"order_placed": ["commera_buy_links.orders.on_order_placed"]}
 
 # Each item in the list will be shown as an app in the apps page
 # add_to_apps_screen = [
@@ -304,4 +316,3 @@ require_type_annotated_api_methods = True
 # ------------
 # List of apps whose translatable strings should be excluded from this app's translations.
 # ignore_translatable_strings_from = []
-

@@ -53,3 +53,5 @@ jspm_packages/
 
 # Aider AI Chat
 .aider*
+node_modules
+commera_buy_links/public/commera/
