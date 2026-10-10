@@ -30,6 +30,18 @@
   "utm_term",
   "utm_content",
   "order_tags",
+  "popup_section",
+  "popup_enabled",
+  "popup_callout",
+  "popup_button_label",
+  "popup_skip_label",
+  "column_break_popup",
+  "popup_consent",
+  "popup_consent_label",
+  "popup_consent_terms",
+  "popup_countdown",
+  "popup_countdown_minutes",
+  "popup_countdown_text",
   "limits_section",
   "usage_limit",
   "once_per_customer",
@@ -188,6 +200,85 @@
    "fieldname": "order_tags",
    "fieldtype": "Small Text",
    "label": "Order tags"
+  },
+  {
+   "collapsible": 1,
+   "description": "Shows the offer over the storefront before checkout. Needs Run on the storefront turned on for Buy Links under Settings > Plugins.",
+   "fieldname": "popup_section",
+   "fieldtype": "Section Break",
+   "label": "Popup"
+  },
+  {
+   "fieldname": "popup_enabled",
+   "fieldtype": "Check",
+   "label": "Show a popup before checkout"
+  },
+  {
+   "depends_on": "popup_enabled",
+   "fieldname": "popup_callout",
+   "fieldtype": "Small Text",
+   "label": "Message"
+  },
+  {
+   "default": "Go to checkout",
+   "depends_on": "popup_enabled",
+   "fieldname": "popup_button_label",
+   "fieldtype": "Data",
+   "label": "Checkout button"
+  },
+  {
+   "default": "Skip offer and continue shopping",
+   "depends_on": "popup_enabled",
+   "description": "Leave empty to hide the skip link.",
+   "fieldname": "popup_skip_label",
+   "fieldtype": "Data",
+   "label": "Skip link"
+  },
+  {
+   "fieldname": "column_break_popup",
+   "fieldtype": "Column Break"
+  },
+  {
+   "depends_on": "popup_enabled",
+   "fieldname": "popup_consent",
+   "fieldtype": "Check",
+   "label": "Ask for consent"
+  },
+  {
+   "default": "I agree to the terms",
+   "depends_on": "popup_consent",
+   "fieldname": "popup_consent_label",
+   "fieldtype": "Data",
+   "label": "Consent label"
+  },
+  {
+   "depends_on": "popup_consent",
+   "description": "Shown when the shopper opens the terms.",
+   "fieldname": "popup_consent_terms",
+   "fieldtype": "Small Text",
+   "label": "Terms"
+  },
+  {
+   "depends_on": "popup_enabled",
+   "fieldname": "popup_countdown",
+   "fieldtype": "Check",
+   "label": "Show a countdown"
+  },
+  {
+   "default": "10",
+   "depends_on": "popup_countdown",
+   "fieldname": "popup_countdown_minutes",
+   "fieldtype": "Int",
+   "label": "Minutes",
+   "non_negative": 1
+  },
+  {
+   "default": "This offer ends in {timer}",
+   "depends_on": "popup_countdown",
+   "description": "{timer} shows the time left. At zero the popup closes and the shopper stays in the store.",
+   "fieldname": "popup_countdown_text",
+   "fieldtype": "Data",
+   "label": "Countdown text"
   },
   {
    "collapsible": 1,

@@ -30,6 +30,16 @@ export function emptyLink() {
     starts_on: null,
     ends_on: null,
     order_tags: '',
+    popup_enabled: 0,
+    popup_callout: '',
+    popup_button_label: 'Go to checkout',
+    popup_skip_label: 'Skip offer and continue shopping',
+    popup_consent: 0,
+    popup_consent_label: 'I agree to the terms',
+    popup_consent_terms: '',
+    popup_countdown: 0,
+    popup_countdown_minutes: 10,
+    popup_countdown_text: 'This offer ends in {timer}',
     ...Object.fromEntries([...PREFILL_FIELDS, ...UTM_FIELDS].map(({ field }) => [field, ''])),
   }
 }

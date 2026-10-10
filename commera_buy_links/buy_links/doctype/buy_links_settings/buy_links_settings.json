@@ -3,7 +3,13 @@
  "doctype": "DocType",
  "engine": "InnoDB",
  "field_order": [
-  "attribution_days"
+  "attribution_days",
+  "qr_section",
+  "qr_style",
+  "qr_color",
+  "qr_background",
+  "qr_logo",
+  "qr_logo_image"
  ],
  "fields": [
   {
@@ -14,10 +20,52 @@
    "label": "Attribution window (days)",
    "non_negative": 1,
    "reqd": 1
+  },
+  {
+   "fieldname": "qr_section",
+   "fieldtype": "Section Break",
+   "label": "QR code"
+  },
+  {
+   "default": "Square",
+   "description": "Dots and Rounded keep the three corner squares solid so phones still read the code.",
+   "fieldname": "qr_style",
+   "fieldtype": "Select",
+   "label": "Style",
+   "options": "Square\nRounded\nDots"
+  },
+  {
+   "default": "#000000",
+   "description": "A hex colour, for example #111827. Keep it dark on a light background.",
+   "fieldname": "qr_color",
+   "fieldtype": "Data",
+   "label": "Colour"
+  },
+  {
+   "default": "#FFFFFF",
+   "description": "A hex colour, for example #FFFFFF.",
+   "fieldname": "qr_background",
+   "fieldtype": "Data",
+   "label": "Background"
+  },
+  {
+   "default": "None",
+   "description": "A logo in the middle of the code. The code then uses more error correction, so phones still read it.",
+   "fieldname": "qr_logo",
+   "fieldtype": "Select",
+   "label": "Logo",
+   "options": "None\nStore logo\nUpload"
+  },
+  {
+   "depends_on": "eval:doc.qr_logo=='Upload'",
+   "description": "A PNG, JPG or WebP. A square image fits best.",
+   "fieldname": "qr_logo_image",
+   "fieldtype": "Attach Image",
+   "label": "Logo image"
   }
  ],
  "issingle": 1,
- "modified": "2026-10-09 15:00:00.000000",
+ "modified": "2026-10-10 12:00:00.000000",
  "modified_by": "Administrator",
  "module": "Buy Links",
  "name": "Buy Links Settings",

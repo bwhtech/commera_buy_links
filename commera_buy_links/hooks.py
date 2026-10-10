@@ -26,6 +26,10 @@ doc_events = {"Quotation": {"validate": "commera_buy_links.attribution.attribute
 commera_hooks = {"validate_cart": ["commera_buy_links.cart.get_cart_refusal"]}
 commera_events = {"order_placed": ["commera_buy_links.orders.on_order_placed"]}
 
+# The popup runs on the storefront once a merchant turns on Run on the storefront for Buy Links in Settings > Plugins.
+commera_storefront_include_js = ["/assets/commera_buy_links/js/popup.js"]
+commera_storefront_include_css = ["/assets/commera_buy_links/css/popup.css"]
+
 # Each item in the list will be shown as an app in the apps page
 # add_to_apps_screen = [
 # 	{

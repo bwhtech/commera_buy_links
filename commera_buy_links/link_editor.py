@@ -1,13 +1,11 @@
-import io
-
 import frappe
-import pyqrcode
 from commera.sdk import catalog
 from frappe import _
 from frappe.utils import cint
 
-from commera_buy_links.buy_links.doctype.buy_link.buy_link import BuyLink
+from commera_buy_links.buy_links.doctype.buy_link.buy_link import BuyLink, is_storefront_enabled
 from commera_buy_links.link_list import get_link_url
+from commera_buy_links.qr_code import QrCode
 
 EDITABLE_FIELDS = (
 	"title",
@@ -33,6 +31,16 @@ EDITABLE_FIELDS = (
 	"once_per_customer",
 	"starts_on",
 	"ends_on",
+	"popup_enabled",
+	"popup_callout",
+	"popup_button_label",
+	"popup_skip_label",
+	"popup_consent",
+	"popup_consent_label",
+	"popup_consent_terms",
+	"popup_countdown",
+	"popup_countdown_minutes",
+	"popup_countdown_text",
 )
 SEARCH_LIMIT = 20
 
@@ -44,12 +52,13 @@ def get_link(name: str) -> dict:
 	return values | {
 		"url": url,
 		"used_count": link.used_count,
+		"storefront_enabled": is_storefront_enabled(),
 		"unavailable_reason": link.get_unavailable_reason(),
 		"items": get_item_details({row.item_code: cint(row.qty) for row in link.items}),
 		"coupon": frappe.db.get_value("Coupon Code", link.coupon_code, "coupon_code")
 		if link.coupon_code
 		else None,
-		"qr_svg": get_qr_svg(url),
+		"qr_svg": QrCode(url).get_svg(),
 	}
 
 
@@ -120,9 +129,3 @@ def search_coupon_codes(search: str | None = None) -> list[dict]:
 		order_by="creation desc",
 		limit=SEARCH_LIMIT,
 	)
-
-
-def get_qr_svg(url: str) -> str:
-	buffer = io.BytesIO()
-	pyqrcode.create(url).svg(buffer, scale=8, quiet_zone=2, xmldecl=False, svgns=True, omithw=True)
-	return buffer.getvalue().decode()

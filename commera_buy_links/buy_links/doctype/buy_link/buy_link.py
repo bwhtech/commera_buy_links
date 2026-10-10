@@ -84,8 +84,22 @@ class BuyLink(Document):
 			return _("This offer has been fully claimed.")
 		return None
 
+	def get_landing_url(self, visitor_params: dict | None = None) -> str:
+		"""Where /buy/<code> sends the shopper: the popup over the store home, or straight to the cart permalink."""
+		query = self.get_cart_query(visitor_params)
+		if self.popup_enabled and is_storefront_enabled():
+			# Commera's "/" answers with a redirect to /<lang> that drops the query, so go to the language home directly.
+			home = f"/{frappe.local.lang or 'en'}"
+			return f"{home}?{urlencode({'buy': self.name})}" + (f"&{query}" if query else "")
+		return self.get_cart_url(visitor_params)
+
 	def get_cart_url(self, visitor_params: dict | None = None) -> str:
 		codes = ",".join(f"{quote(row.item_code, safe='')}:{cint(row.qty)}" for row in self.items)
+		query = self.get_cart_query(visitor_params)
+		return f"/cart/{codes}?{query}" if query else f"/cart/{codes}"
+
+	def get_cart_query(self, visitor_params: dict | None = None) -> str:
+		"""The permalink's query string: coupon, prefill and UTM values, with the visitor's own parameters on top."""
 		params = {param: self.get(field) for field, param in PREFILL_PARAMS.items()}
 		params |= {field: self.get(field) for field in UTM_FIELDS}
 		if self.coupon_code:
@@ -94,8 +108,7 @@ class BuyLink(Document):
 		for key, value in (visitor_params or {}).items():
 			if key == "discount" or key.startswith(VISITOR_PARAM_PREFIXES):
 				params[key] = value
-		query = urlencode({key: value for key, value in params.items() if value})
-		return f"/cart/{codes}?{query}" if query else f"/cart/{codes}"
+		return urlencode({key: value for key, value in params.items() if value})
 
 	def on_trash(self):
 		if orders := self.used_count:
@@ -116,6 +129,17 @@ class BuyLink(Document):
 			on duplicate key update clicks = clicks + 1, modified = %(now)s""",
 			{"name": f"{self.name}-{date}", "link": self.name, "date": date, "now": now_datetime()},
 		)
+
+
+def is_storefront_enabled() -> bool:
+	"""Commera loads a plugin's storefront script only after the merchant turns the app on in Commera Settings."""
+	return bool(
+		frappe.db.get_value(
+			"Commera Storefront App",
+			{"parent": "Commera Settings", "app": "commera_buy_links"},
+			"enabled",
+		)
+	)
 
 
 def get_new_code() -> str:

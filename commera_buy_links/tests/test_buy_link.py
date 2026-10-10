@@ -1,3 +1,4 @@
+import io
 from types import SimpleNamespace
 from unittest.mock import patch
 from urllib.parse import parse_qs, urlsplit
@@ -7,7 +8,9 @@ from commera.sdk import STORE_ORDER_TYPE
 from commera.sdk.events import CommeraEvent
 from frappe.tests import IntegrationTestCase
 from frappe.utils import add_days, getdate, now_datetime
+from PIL import Image
 
+from commera_buy_links.api import download_qr, get_popup, get_qr_preview
 from commera_buy_links.attribution import COOKIE, attribute_cart
 from commera_buy_links.buy_links.doctype.buy_link.buy_link import (
 	LINK_FIELD,
@@ -16,6 +19,7 @@ from commera_buy_links.buy_links.doctype.buy_link.buy_link import (
 from commera_buy_links.cart import get_cart_refusal
 from commera_buy_links.link_stats import get_stats
 from commera_buy_links.orders import on_order_placed
+from commera_buy_links.qr_code import QrCode, QrStyle
 
 COUPON = "CL-TEST-10"
 
@@ -262,3 +266,129 @@ def insert_clicks(link_name: str, day, clicks: int):
 			"clicks": clicks,
 		}
 	).db_insert()
+
+
+class TestPopup(IntegrationTestCase):
+	def set_storefront(self, enabled: bool):
+		frappe.db.set_value(
+			"Commera Storefront App",
+			{"parent": "Commera Settings", "app": "commera_buy_links"},
+			"enabled",
+			int(enabled),
+		)
+
+	def test_the_popup_lands_on_the_store_only_when_the_storefront_runs_it(self):
+		link = make_link(popup_enabled=1)
+
+		self.set_storefront(True)
+		self.assertTrue(link.get_landing_url().startswith(f"/{frappe.local.lang or 'en'}?buy={link.name}"))
+
+		self.set_storefront(False)
+		self.assertTrue(link.get_landing_url().startswith("/cart/"))
+
+		self.set_storefront(True)
+		link.popup_enabled = 0
+		self.assertTrue(link.get_landing_url().startswith("/cart/"))
+
+	def test_shoppers_get_an_active_link_only(self):
+		draft = make_link(status="Draft", popup_enabled=1)
+		frappe.set_user("Guest")
+		self.addCleanup(frappe.set_user, "Administrator")
+
+		self.assertIn("isn't active", get_popup(draft.name)["unavailable"])
+		with self.assertRaises(frappe.PermissionError):
+			get_popup(draft.name, preview=1)
+
+	def test_staff_preview_a_draft_with_its_settings(self):
+		draft = make_link(status="Draft", popup_enabled=1, popup_callout="Hello", popup_consent=1)
+
+		popup = get_popup(draft.name, preview=1)
+
+		self.assertEqual(popup["popup_callout"], "Hello")
+		self.assertEqual(popup["popup_consent"], 1)
+		self.assertIn("query", popup)
+
+
+class TestQrCode(IntegrationTestCase):
+	URL = "https://store.example.com/buy/spring-sale"
+
+	def test_each_format_is_a_real_file(self):
+		code = QrCode(self.URL, QrStyle())
+		self.assertTrue(code.get_file("svg").startswith(b"<svg"))
+		self.assertTrue(code.get_file("png").startswith(b"\x89PNG"))
+		self.assertTrue(code.get_file("pdf").startswith(b"%PDF"))
+		with self.assertRaises(frappe.ValidationError):
+			code.get_file("gif")
+
+	def test_only_data_modules_turn_into_dots(self):
+		square = QrCode(self.URL, QrStyle(shape="Square")).get_svg()
+		dots = QrCode(self.URL, QrStyle(shape="Dots"))
+
+		self.assertNotIn("<circle", square)
+		svg = dots.get_svg()
+		modules = [shape for shape in dots.get_shapes() if shape[0] == "module"]
+		self.assertEqual(svg.count("<circle"), len(modules))
+		# Three finders plus this version's alignment patterns stay squares, each drawn as three rects.
+		self.assertEqual(svg.count("<rect") - 1, len(dots.patterns) * 3)
+
+	def test_settings_refuse_a_colour_that_is_not_hex(self):
+		settings = frappe.get_single("Buy Links Settings")
+		settings.qr_color = "red"
+		with self.assertRaises(frappe.ValidationError):
+			settings.validate()
+		settings.qr_color = ""
+		settings.validate()
+
+	def test_a_logo_raises_error_correction_and_is_drawn_in_every_format(self):
+		logo = make_logo_file()
+		plain = QrCode(self.URL, QrStyle())
+		branded = QrCode(self.URL, QrStyle(logo=logo.file_url))
+
+		self.assertGreater(branded.version, plain.version)
+		self.assertIn("<image", branded.get_svg())
+		self.assertNotEqual(branded.get_file("png"), QrCode(self.URL, QrStyle(logo=None)).get_file("png"))
+		self.assertTrue(branded.get_file("pdf").startswith(b"%PDF"))
+
+	def test_settings_refuse_a_logo_the_downloads_cannot_draw(self):
+		settings = frappe.get_single("Buy Links Settings")
+		settings.update({"qr_color": "", "qr_background": "", "qr_logo": "Upload", "qr_logo_image": ""})
+		with self.assertRaises(frappe.ValidationError):
+			settings.validate()
+		settings.qr_logo_image = "/files/logo.svg"
+		with self.assertRaises(frappe.ValidationError):
+			settings.validate()
+		settings.qr_logo_image = "/files/logo.png"
+		settings.validate()
+		self.assertEqual(settings.get_logo_url(), "/files/logo.png")
+
+	def test_preview_draws_unsaved_values_without_saving_them(self):
+		stored = frappe.db.get_single_value("Buy Links Settings", "qr_style")
+		values = {"qr_style": "Dots", "qr_color": "#1E3A8A", "qr_background": "#FFFFFF", "qr_logo": "None"}
+
+		svg = get_qr_preview(values)
+
+		self.assertIn("<circle", svg)
+		self.assertIn('fill="#1E3A8A"', svg)
+		self.assertEqual(frappe.db.get_single_value("Buy Links Settings", "qr_style"), stored)
+		with self.assertRaises(frappe.ValidationError):
+			get_qr_preview(values | {"qr_color": "blue"})
+
+	def test_download_answers_with_a_file(self):
+		link = make_link(slug=f"qr-{frappe.generate_hash(length=4).lower()}")
+		download_qr(link.name, "png")
+		self.assertEqual(frappe.local.response["type"], "download")
+		self.assertEqual(frappe.local.response["filename"], f"buy-link-{link.slug}.png")
+		with self.assertRaises(frappe.ValidationError):
+			download_qr(link.name, "exe")
+
+
+def make_logo_file():
+	buffer = io.BytesIO()
+	Image.new("RGB", (64, 64), "#EA580C").save(buffer, "PNG")
+	return frappe.get_doc(
+		{
+			"doctype": "File",
+			"file_name": f"logo-{frappe.generate_hash(length=6)}.png",
+			"content": buffer.getvalue(),
+		}
+	).insert()

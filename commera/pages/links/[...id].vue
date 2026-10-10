@@ -5,6 +5,7 @@ import { useMethodAction, useMethodRead, usePage, usePlugin } from '@commera/adm
 import LinkAnalytics from '../../shared/LinkAnalytics.vue'
 import LinkDetails from '../../shared/LinkDetails.vue'
 import LinkOrders from '../../shared/LinkOrders.vue'
+import LinkPopup from '../../shared/LinkPopup.vue'
 import LinkShare from '../../shared/LinkShare.vue'
 import LinkSnapshot from '../../shared/LinkSnapshot.vue'
 import { emptyLink, getLinkProblem } from '../../shared/links'
@@ -72,9 +73,10 @@ page.setActions(() => [
       ]),
 ])
 
-const tab = useTabQuery(() => `links/${props.id}`, ['details', 'analytics', 'orders'])
+const tab = useTabQuery(() => `links/${props.id}`, ['details', 'popup', 'analytics', 'orders'])
 const tabs = computed(() => [
   { label: 'Details', value: 'details' },
+  { label: 'Popup', value: 'popup' },
   { label: 'Analytics', value: 'analytics' },
   { label: link.value?.used_count ? `Orders (${link.value.used_count})` : 'Orders', value: 'orders' },
 ])
@@ -93,6 +95,7 @@ const tabs = computed(() => [
       <template #tab-panel="{ tab: current }">
         <div class="pt-5">
           <LinkDetails v-if="current.value === 'details'" :form="form" :link="link" />
+          <LinkPopup v-else-if="current.value === 'popup'" :form="form" :link="link" />
           <LinkAnalytics v-else-if="current.value === 'analytics'" :name="link.name" />
           <LinkOrders v-else :name="link.name" />
         </div>

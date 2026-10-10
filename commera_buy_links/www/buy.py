@@ -21,6 +21,6 @@ def get_context(context):
 	remember_link(link.name)
 	# A GET request is not committed by Frappe; the click must be.
 	frappe.db.commit()  # nosemgrep
-	frappe.flags.redirect_location = link.get_cart_url(frappe.form_dict)
+	frappe.flags.redirect_location = link.get_landing_url(frappe.form_dict)
 	# 302, not frappe.redirect's 301: a browser caches a 301 and would skip counting the next click.
 	raise frappe.Redirect(302)

@@ -1,6 +1,6 @@
 <script setup>
 import { computed } from 'vue'
-import { Button, TextInput } from 'frappe-ui'
+import { Button, Dropdown, TextInput } from 'frappe-ui'
 import { useLinkActions } from './useLinkActions'
 
 const props = defineProps({
@@ -11,6 +11,16 @@ const props = defineProps({
 
 const { copy } = useLinkActions()
 const path = computed(() => new URL(props.url).pathname)
+// Files come from the server so PNG and PDF match the SVG here, in the style set under Settings > Buy links.
+const downloadOptions = ['svg', 'png', 'pdf'].map((fileFormat) => ({
+  label: fileFormat.toUpperCase(),
+  icon: 'lucide-download',
+  onClick: () =>
+    window.open(
+      `/api/method/commera_buy_links.api.download_qr?name=${encodeURIComponent(props.code)}&file_format=${fileFormat}`,
+      '_blank',
+    ),
+}))
 const qrSource = computed(() => `data:image/svg+xml;charset=utf-8,${encodeURIComponent(props.qrSvg)}`)
 </script>
 
@@ -24,12 +34,10 @@ const qrSource = computed(() => `data:image/svg+xml;charset=utf-8,${encodeURICom
     </div>
     <img :src="qrSource" alt="QR code for this link" class="mx-auto mt-4 w-36 rounded-4 bg-white p-1" />
     <div class="mt-2 flex justify-center">
-      <Button
-        variant="ghost"
-        label="Download QR code"
-        icon-left="lucide-download"
-        :link="qrSource"
-        :download="`buy-link-${code}.svg`"
+      <Dropdown
+        :options="downloadOptions"
+        align="center"
+        :button="{ label: 'Download QR code', iconLeft: 'lucide-download', iconRight: 'lucide-chevron-down', variant: 'ghost' }"
       />
     </div>
   </section>
