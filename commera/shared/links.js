@@ -18,6 +18,17 @@ export const UTM_FIELDS = [
   { field: 'utm_content', label: 'UTM content' },
 ]
 
+export const CART_MODES = [
+  { label: "Replace the shopper's cart", value: 'Replace the cart' },
+  { label: "Add to the shopper's cart", value: 'Add to the cart' },
+]
+
+export const DESTINATIONS = [
+  { label: 'Checkout', value: 'Checkout' },
+  { label: 'Cart', value: 'Cart' },
+  { label: 'A page on the store', value: 'Page' },
+]
+
 export function emptyLink() {
   return {
     title: '',
@@ -25,6 +36,9 @@ export function emptyLink() {
     slug: '',
     coupon_code: '',
     items: [],
+    cart_mode: 'Replace the cart',
+    destination: 'Checkout',
+    destination_path: '',
     usage_limit: '',
     once_per_customer: 0,
     starts_on: null,
@@ -45,8 +59,9 @@ export function emptyLink() {
 }
 
 // Buttons stay enabled; pressing one with a gap says what to fill in instead of greying out without a reason.
-export function getLinkProblem({ title, items }) {
+export function getLinkProblem({ title, items, destination, destination_path }) {
   if (!title?.trim()) return 'Give the link a name.'
   if (!items?.length) return 'Add at least one product to the cart.'
+  if (destination === 'Page' && !destination_path?.trim()) return 'Enter the path of the page to open.'
   return null
 }

@@ -23,7 +23,8 @@ website_route_rules = [{"from_route": "/buy/<code>", "to_route": "buy"}]
 
 doc_events = {"Quotation": {"validate": "commera_buy_links.attribution.attribute_cart"}}
 
-commera_hooks = {"validate_cart": ["commera_buy_links.cart.get_cart_refusal"]}
+# validate_discount_code needs Commera with bwhtech/commera#254: an older Commera does not call it.
+commera_hooks = {"validate_discount_code": ["commera_buy_links.cart.get_discount_code_refusal"]}
 commera_events = {"order_placed": ["commera_buy_links.orders.on_order_placed"]}
 
 # The popup runs on the storefront once a merchant turns on Run on the storefront for Buy Links in Settings > Plugins.

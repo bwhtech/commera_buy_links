@@ -37,6 +37,7 @@ class BuyLink(Document):
 	def validate(self):
 		self.validate_slug()
 		self.validate_items()
+		self.validate_destination()
 		if self.starts_on and self.ends_on and get_datetime(self.ends_on) <= get_datetime(self.starts_on):
 			frappe.throw(_("Ends on must be after Starts on."))
 		if cint(self.usage_limit) < 0:
@@ -63,6 +64,15 @@ class BuyLink(Document):
 			if cint(row.qty) < 1:
 				frappe.throw(_("Row {0}: the quantity must be at least 1.").format(row.idx))
 			seen.add(row.item_code)
+
+	def validate_destination(self):
+		if self.destination != "Page":
+			self.destination_path = None
+			return
+		path = self.destination_path = (self.destination_path or "").strip()
+		# The same check as Commera's permalink, which ignores a return_to that leaves the site.
+		if not path.startswith("/") or path.startswith(("//", "/\\")) or "://" in path:
+			frappe.throw(_("Start the page path with one /, for example /en/products/shirt."))
 
 	@property
 	def path(self) -> str:
@@ -99,9 +109,12 @@ class BuyLink(Document):
 		return f"/cart/{codes}?{query}" if query else f"/cart/{codes}"
 
 	def get_cart_query(self, visitor_params: dict | None = None) -> str:
-		"""The permalink's query string: coupon, prefill and UTM values, with the visitor's own parameters on top."""
+		"""The permalink's query string: cart mode, destination, coupon, prefill and UTM values, with the visitor's own parameters on top."""
 		params = {param: self.get(field) for field, param in PREFILL_PARAMS.items()}
 		params |= {field: self.get(field) for field in UTM_FIELDS}
+		if self.cart_mode == "Add to the cart":
+			params["mode"] = "add"
+		params["return_to"] = {"Cart": "cart", "Page": self.destination_path}.get(self.destination)
 		if self.coupon_code:
 			params["discount"] = frappe.db.get_value("Coupon Code", self.coupon_code, "coupon_code")
 		# A visitor's own parameters win, so one link can serve many customers: /buy/abc?checkout[email]=...

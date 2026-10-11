@@ -4,6 +4,7 @@ from unittest.mock import patch
 from urllib.parse import parse_qs, urlsplit
 
 import frappe
+from commera.checkout_hooks import get_discount_code_refusal as commera_discount_code_refusal
 from commera.sdk import STORE_ORDER_TYPE
 from commera.sdk.events import CommeraEvent
 from frappe.tests import IntegrationTestCase
@@ -16,7 +17,7 @@ from commera_buy_links.buy_links.doctype.buy_link.buy_link import (
 	LINK_FIELD,
 	get_link_by_code,
 )
-from commera_buy_links.cart import get_cart_refusal
+from commera_buy_links.cart import get_discount_code_refusal
 from commera_buy_links.link_stats import get_stats
 from commera_buy_links.orders import on_order_placed
 from commera_buy_links.qr_code import QrCode, QrStyle
@@ -147,6 +148,33 @@ class TestBuyLink(IntegrationTestCase):
 		self.assertNotIn("evil", query)
 		self.assertNotIn("code", query)
 
+	def test_cart_url_tells_commera_how_to_fill_the_cart_and_where_to_go(self):
+		default = parse_qs(urlsplit(make_link().get_cart_url()).query)
+		self.assertNotIn("mode", default)
+		self.assertNotIn("return_to", default)
+
+		to_cart = parse_qs(
+			urlsplit(make_link(cart_mode="Add to the cart", destination="Cart").get_cart_url()).query
+		)
+		self.assertEqual(to_cart["mode"], ["add"])
+		self.assertEqual(to_cart["return_to"], ["cart"])
+
+		page = make_link(destination="Page", destination_path=" /en/products/shirt ")
+		query = parse_qs(urlsplit(page.get_cart_url({"return_to": "https://example.com"})).query)
+		self.assertEqual(query["return_to"], ["/en/products/shirt"])
+
+	def test_a_page_destination_must_stay_on_the_store(self):
+		for path in (
+			"",
+			"en/products",
+			"//example.com",
+			"/\\example.com",
+			"/redirect?to=https://example.com",
+		):
+			with self.subTest(path=path), self.assertRaises(frappe.ValidationError):
+				make_link(destination="Page", destination_path=path)
+		self.assertIsNone(make_link(destination="Cart", destination_path="/en").destination_path)
+
 	def test_a_link_opens_by_code_or_slug(self):
 		link = make_link(slug=f"Spring-{frappe.generate_hash(length=4).lower()}")
 		self.assertEqual(link.slug, link.slug.lower())
@@ -188,16 +216,29 @@ class TestBuyLink(IntegrationTestCase):
 			attribute_cart(related)
 			self.assertEqual(related.get(LINK_FIELD), link.name)
 
-	def test_limits_refuse_only_while_the_links_coupon_is_on_the_cart(self):
+	def test_limits_refuse_only_the_links_own_coupon(self):
 		coupon = make_coupon()
 		link = make_link(coupon_code=coupon, once_per_customer=1)
 		make_order(link.name, "repeat@example.com")
+		repeat_cart = make_cart(link.name, coupon, "repeat@example.com")
 
-		self.assertIn(
-			"one order per customer", get_cart_refusal(make_cart(link.name, coupon, "repeat@example.com"))
-		)
-		self.assertIsNone(get_cart_refusal(make_cart(link.name, None, "repeat@example.com")))
-		self.assertIsNone(get_cart_refusal(make_cart(link.name, coupon, "new@example.com")))
+		self.assertIn("one order per customer", get_discount_code_refusal(repeat_cart, COUPON.lower()))
+		self.assertIsNone(get_discount_code_refusal(repeat_cart, "SOME-OTHER-CODE"))
+		self.assertIsNone(get_discount_code_refusal(make_cart(link.name, coupon, "new@example.com"), COUPON))
+		self.assertIsNone(get_discount_code_refusal(make_cart(None, coupon, "repeat@example.com"), COUPON))
+
+	def test_a_closed_link_refuses_its_coupon_with_the_shoppers_reason(self):
+		coupon = make_coupon()
+		link = make_link(coupon_code=coupon, ends_on=add_days(now_datetime(), -1))
+		reason = get_discount_code_refusal(make_cart(link.name, coupon, "late@example.com"), COUPON)
+		self.assertEqual(reason, link.get_unavailable_reason())
+
+	def test_commera_asks_the_link_before_it_applies_the_coupon(self):
+		coupon = make_coupon()
+		link = make_link(coupon_code=coupon, status="Draft")
+		cart = make_cart(link.name, coupon, "draft@example.com")
+		cart.flags = frappe._dict()
+		self.assertEqual(commera_discount_code_refusal(cart, COUPON), link.get_unavailable_reason())
 
 	def test_order_placed_tags_the_order_and_closes_a_full_link(self):
 		link = make_link(usage_limit=1, order_tags="influencer, spring")
