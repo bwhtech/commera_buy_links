@@ -37,7 +37,7 @@ https://store.example.com/buy/spring-sale?checkout[email]=asha@example.com&utm_c
 | Customer prefill | Email, name and address for empty checkout fields |
 | Attribution | UTM values for the store analytics. The order keeps the link when the shopper opened it within the attribution window and the cart still holds one of its items |
 | Order tags | Added to every order placed through the link |
-| Limits | Usage limit, once per customer, start and end. With a coupon, checkout refuses the coupon when a limit is hit, and the shopper can still buy at full price. At the usage limit the link moves to Draft |
+| Limits | Usage limit, once per customer, start and end. With a coupon, checkout removes the coupon when a limit is hit, tells the shopper why, and shows the full-price total. At the usage limit the link moves to Draft |
 | Popup | An optional stop over the storefront before checkout: message, cart with quantities, coupon, countdown, consent, Checkout and Skip |
 | Share | Short URL, copy, open and a QR code in the store's style (Square, Rounded or Dots, two colours and an optional logo in the middle, set in **Settings → Buy links**), downloadable as SVG, PNG or PDF |
 | Analytics | Clicks, orders, conversion and sales for today, 7, 30 or 90 days, with the change against the previous period, a daily trend, a funnel from click to checkout to order, and the top links by sales |

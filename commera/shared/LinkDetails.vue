@@ -137,7 +137,7 @@ watch(
         <FormControl v-model="form.ends_on" type="datetime" label="Ends on" />
       </div>
       <p class="mt-3 text-sm text-ink-gray-5">
-        With a coupon, limits are checked again at checkout. Without one, they only stop new clicks.
+        With a coupon, checkout removes the coupon when a limit is hit and tells the shopper why. Without one, limits only stop new clicks.
       </p>
     </section>
   </div>
