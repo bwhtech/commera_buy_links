@@ -10,7 +10,7 @@ When a shopper opens `/buy/<code>` (or `/buy/<slug>`), the plugin:
 
 1. Checks that the link is active, inside its schedule and under its usage limit. If not, the shopper sees a short message in the store theme.
 2. Counts the click and remembers the link in a cookie for the attribution window.
-3. Redirects (302) to Commera's cart permalink. Commera fills the cart, applies the coupon, fills empty checkout fields and opens checkout.
+3. Redirects (302) to Commera's cart permalink. Commera fills the cart, then opens checkout, the cart or a page on the store. Checkout applies the coupon and fills empty fields.
 
 ![The shopper lands on checkout with the cart and their details filled in](docs/screenshots/checkout.png)
 
@@ -32,7 +32,7 @@ https://store.example.com/buy/spring-sale?checkout[email]=asha@example.com&utm_c
 
 | Area | What you get |
 | --- | --- |
-| Cart | Products and quantities. Opening the link replaces the shopper's cart |
+| Cart | Products and quantities. The link replaces the shopper's cart or adds to it, then opens checkout, the cart or a page on the store |
 | Discount | An ERPNext Coupon Code, applied at checkout |
 | Customer prefill | Email, name and address for empty checkout fields |
 | Attribution | UTM values for the store analytics. The order keeps the link when the shopper opened it within the attribution window and the cart still holds one of its items |
@@ -51,6 +51,10 @@ https://store.example.com/buy/spring-sale?checkout[email]=asha@example.com&utm_c
 A link has three tabs: **Details** (setup), **Analytics** and **Orders**. The side panel stays on every tab: the share box with its QR code, and the last 30 days with a funnel from click to checkout to order.
 
 ![Link details](docs/screenshots/link-details.png)
+
+Under the cart, **These items** replaces the shopper's cart or adds to it, and **Then open** goes to checkout, the cart or a page on the store. The coupon reaches checkout from the cart. On another page, the shopper enters it at checkout.
+
+![Cart mode and destination](docs/screenshots/link-cart-options.png)
 
 The **Popup** tab sets the message, the button labels, consent and the countdown, with a live preview of your storefront at phone width. Edits show in the preview before you save.
 

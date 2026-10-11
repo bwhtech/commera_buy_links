@@ -9,6 +9,10 @@
   "slug",
   "cart_section",
   "items",
+  "cart_mode",
+  "column_break_cart",
+  "destination",
+  "destination_path",
   "discount_section",
   "coupon_code",
   "customer_section",
@@ -89,6 +93,31 @@
    "label": "Items",
    "options": "Buy Link Item",
    "reqd": 1
+  },
+  {
+   "default": "Replace the cart",
+   "fieldname": "cart_mode",
+   "fieldtype": "Select",
+   "label": "Cart mode",
+   "options": "Replace the cart\nAdd to the cart"
+  },
+  {
+   "fieldname": "column_break_cart",
+   "fieldtype": "Column Break"
+  },
+  {
+   "default": "Checkout",
+   "fieldname": "destination",
+   "fieldtype": "Select",
+   "label": "Then open",
+   "options": "Checkout\nCart\nPage"
+  },
+  {
+   "depends_on": "eval:doc.destination==\"Page\"",
+   "fieldname": "destination_path",
+   "fieldtype": "Data",
+   "label": "Page path",
+   "mandatory_depends_on": "eval:doc.destination==\"Page\""
   },
   {
    "fieldname": "discount_section",
@@ -312,7 +341,7 @@
    "label": "Ends on"
   }
  ],
- "modified": "2026-10-09 15:00:00.000000",
+ "modified": "2026-10-11 12:00:00.000000",
  "modified_by": "Administrator",
  "module": "Buy Links",
  "name": "Buy Link",

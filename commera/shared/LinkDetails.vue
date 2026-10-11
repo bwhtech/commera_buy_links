@@ -3,7 +3,7 @@ import { computed, ref, watch } from 'vue'
 import { Alert, Badge, Button, FormControl, Switch } from 'frappe-ui'
 import { useMethodRead } from '@commera/admin'
 import CartLines from './CartLines.vue'
-import { PREFILL_FIELDS, UTM_FIELDS } from './links'
+import { CART_MODES, DESTINATIONS, PREFILL_FIELDS, UTM_FIELDS } from './links'
 
 // `form` is the page's reactive draft; the sections edit it in place and the page saves it.
 const props = defineProps({
@@ -63,8 +63,20 @@ watch(
 
     <section class="rounded-5 border border-outline-gray-1 p-4">
       <h2 class="text-lg-semibold text-ink-gray-8">Cart</h2>
-      <p class="mt-1 text-sm text-ink-gray-5">Opening the link replaces the shopper's cart with these items.</p>
       <CartLines v-model="form.items" class="mt-4" />
+      <div class="mt-4 grid gap-4 sm:grid-cols-2">
+        <FormControl v-model="form.cart_mode" type="select" label="These items" :options="CART_MODES" />
+        <FormControl v-model="form.destination" type="select" label="Then open" :options="DESTINATIONS" />
+        <FormControl
+          v-if="form.destination === 'Page'"
+          v-model="form.destination_path"
+          class="sm:col-span-2"
+          label="Page path"
+          placeholder="/en/products/linen-shirt"
+          description="A page on this store, such as a product. The shopper enters the coupon at checkout themselves."
+          required
+        />
+      </div>
     </section>
 
     <section class="rounded-5 border border-outline-gray-1 p-4">

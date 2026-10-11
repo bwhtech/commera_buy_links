@@ -10,7 +10,6 @@ What the Shopify app [Checkout Links](https://checkoutlinks.com) does that this 
 | No supported way to tag a guest's cart with a source | The plugin sets its own cookie at `/buy/<code>` and tags the Quotation in its `validate` doc event | [#223](https://github.com/bwhtech/commera/issues/223) |
 | No promotion API | Only an existing Coupon Code works. No automatic discount, free shipping or free gift per link | [#223](https://github.com/bwhtech/commera/issues/223) |
 | Checkout prefill has no phone | Phone cannot be prefilled | [#245](https://github.com/bwhtech/commera/issues/245) |
-| The permalink always goes to checkout and always replaces the cart | No cart-page or product-page destination, and no "add to the current cart" mode | [#246](https://github.com/bwhtech/commera/issues/246) |
 | The SDK has no product search, images or cart lines | The dashboard picker queries Item directly and shows no images. The popup reads cart lines through the internal `commera.www.cart.permalink.get_cart_lines` | [#248](https://github.com/bwhtech/commera/issues/248) |
 | No coupon amount before checkout | The popup names the coupon ("SAVE10 at checkout") instead of the discount amount | [#249](https://github.com/bwhtech/commera/issues/249) |
 | No SDK test helpers; `before_tests` needs a dedicated test site | Tests build their own Items, Customers and Sales Orders | [#250](https://github.com/bwhtech/commera/issues/250) |

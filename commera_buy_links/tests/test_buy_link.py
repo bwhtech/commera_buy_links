@@ -148,6 +148,33 @@ class TestBuyLink(IntegrationTestCase):
 		self.assertNotIn("evil", query)
 		self.assertNotIn("code", query)
 
+	def test_cart_url_tells_commera_how_to_fill_the_cart_and_where_to_go(self):
+		default = parse_qs(urlsplit(make_link().get_cart_url()).query)
+		self.assertNotIn("mode", default)
+		self.assertNotIn("return_to", default)
+
+		to_cart = parse_qs(
+			urlsplit(make_link(cart_mode="Add to the cart", destination="Cart").get_cart_url()).query
+		)
+		self.assertEqual(to_cart["mode"], ["add"])
+		self.assertEqual(to_cart["return_to"], ["cart"])
+
+		page = make_link(destination="Page", destination_path=" /en/products/shirt ")
+		query = parse_qs(urlsplit(page.get_cart_url({"return_to": "https://example.com"})).query)
+		self.assertEqual(query["return_to"], ["/en/products/shirt"])
+
+	def test_a_page_destination_must_stay_on_the_store(self):
+		for path in (
+			"",
+			"en/products",
+			"//example.com",
+			"/\\example.com",
+			"/redirect?to=https://example.com",
+		):
+			with self.subTest(path=path), self.assertRaises(frappe.ValidationError):
+				make_link(destination="Page", destination_path=path)
+		self.assertIsNone(make_link(destination="Cart", destination_path="/en").destination_path)
+
 	def test_a_link_opens_by_code_or_slug(self):
 		link = make_link(slug=f"Spring-{frappe.generate_hash(length=4).lower()}")
 		self.assertEqual(link.slug, link.slug.lower())
